@@ -3,24 +3,21 @@ const router = express.Router();
 const {
   registerUser,
   authUser,
-  logoutUser, // <-- ¡Importamos logoutUser!
+  logoutUser,
   getUserProfile,
   updateUserProfile,
-  addAddressToProfile, // <-- ¡Importamos las funciones de dirección!
+  addAddressToProfile, 
   updateAddressInProfile,
   deleteAddressFromProfile,
-} = require("../controllers/authController"); // <-- Asegúrate de que authController.js exporta estas funciones
+} = require("../controllers/authController");
 
 const {
   getUserCart,
   addOrUpdateCartItem,
   removeCartItem,
-}
-// NOTA: Si `clearCart` es parte de `orderController`, también deberías importarla aquí
-// y añadir su ruta si es necesaria para tu flujo de carrito.
- = require("../controllers/orderController");
+} = require("../controllers/orderController");
 
-const { protect } = require("../middleware/authMiddleware");
+const { protect, admin } = require("../middleware/authMiddleware");
 const { check } = require("express-validator"); // Para validación de datos
 
 // Rutas públicas
@@ -47,6 +44,9 @@ router.post(
 router.post("/logout", logoutUser); // <-- ¡Nueva ruta para logout!
 
 // Rutas privadas (requieren autenticación)
+router.route('/').post(registerUser).get(protect, admin); // GET /api/users (solo admin)
+router.post('/login', authUser);
+
 router
   .route("/profile")
   .get(protect, getUserProfile)
@@ -67,5 +67,11 @@ router
   .post(protect, addOrUpdateCartItem); // Añadir/actualizar item en el carrito
 
 router.route("/cart/:productId").delete(protect, removeCartItem); // Eliminar item del carrito
+
+router
+  .route('/:id')
+  .delete(protect, admin) // DELETE /api/users/:id (solo admin)
+  .get(protect, admin) // GET /api/users/:id (solo admin)
+  .put(protect, admin);
 
 module.exports = router;

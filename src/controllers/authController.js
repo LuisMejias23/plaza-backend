@@ -1,5 +1,5 @@
 const asyncHandler = require('express-async-handler');
-const User = require('../models/User'); // Asegúrate de que el path a tu modelo User sea correcto
+const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
 // @desc    Registrar un nuevo usuario
@@ -224,10 +224,13 @@ const deleteAddressFromProfile = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+
 module.exports = {
   registerUser,
   authUser,
-  logoutUser, // Asegúrate de exportar logoutUser si lo tienes
+  logoutUser,
   getUserProfile,
   updateUserProfile,
   addAddressToProfile,

@@ -48,20 +48,19 @@ const addOrUpdateCartItem = asyncHandler(async (req, res) => {
   );
 
   if (itemIndex > -1) {
-    // Si el producto ya está en el carrito, actualiza la cantidad
-    // Solo permitir que se actualice a una cantidad menor o igual al stock
-    if (quantity === 0) { // Si la cantidad es 0, eliminar el item
+   
+    if (quantity === 0) {
       user.cart.splice(itemIndex, 1);
     } else {
       user.cart[itemIndex].quantity = quantity;
     }
   } else {
-    // Si el producto no está en el carrito, añádelo
+   
     user.cart.push({ product: productId, quantity });
   }
 
   await user.save();
-  // Vuelve a poblar el carrito para devolver los detalles del producto
+ 
   const updatedUser = await User.findById(req.user._id).populate('cart.product', 'name price imageUrl countInStock');
   res.status(200).json(updatedUser.cart);
 });
@@ -159,7 +158,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
       0
     );
 
-    // Puedes implementar una lógica de envío y impuestos más compleja aquí
+
     const shippingPrice = itemsPrice > 100 ? 0 : 10; // Ejemplo: Envío gratis si el total es > 100
     const taxPrice = 0.15 * itemsPrice; // Ejemplo: 15% de impuesto sobre el precio de los items
     const totalPrice = itemsPrice + shippingPrice + taxPrice;
@@ -227,7 +226,7 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
 
   if (order) {
     order.isPaid = true;
-    order.paidAt = Date.now();
+    order.paidAt = new Date().toISOString();
     order.paymentResult = {
       id: req.body.id,
       status: req.body.status,
@@ -251,7 +250,7 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
 
   if (order) {
     order.isDelivered = true;
-    order.deliveredAt = Date.now();
+    order.deliveredAt = new Date().toISOString();
 
     const updatedOrder = await order.save();
     res.json(updatedOrder);
@@ -276,9 +275,12 @@ const getMyOrders = asyncHandler(async (req, res) => {
 // @route   GET /api/orders
 // @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({}).populate('user', 'id username email'); // Popula el usuario asociado
+  const orders = await Order.find({}).populate('user', 'id username email')
+  .sort({ createdAt: -1 });
   res.json(orders);
 });
+
+
 
 
 module.exports = {
