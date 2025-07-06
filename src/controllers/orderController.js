@@ -164,8 +164,8 @@ const addOrderItems = asyncHandler(async (req, res) => {
     const totalPrice = itemsPrice + shippingPrice + taxPrice;
 
     const order = new Order({
-      user: req.user._id, // Viene del middleware 'protect'
-      orderItems: itemsFromDB, // Usar los items populados con detalles completos
+      user: req.user._id,
+      orderItems: itemsFromDB,
       shippingAddress,
       paymentMethod,
       itemsPrice,
