@@ -11,7 +11,7 @@ const orderSchema = mongoose.Schema(
       {
         name: { type: String, required: true },
         quantity: { type: Number, required: true },
-        image: { type: String, required: true },
+        imageUrl: { type: String, required: true },
         price: { type: Number, required: true },
         product: {
           type: mongoose.Schema.Types.ObjectId,
@@ -25,7 +25,6 @@ const orderSchema = mongoose.Schema(
       city: { type: String, required: true },
       postalCode: { type: String, required: true }, 
       country: { type: String, required: true },
-      // state: { type: String, required: true }, // Agregado también el estado para que coincida con el frontend
     },
     paymentMethod: {
       type: String,

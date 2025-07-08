@@ -1,10 +1,9 @@
 const asyncHandler = require('express-async-handler');
 const Order = require('../models/Order');
 const Product = require('../models/Product');
-const User = require('../models/User'); // Importamos el modelo de usuario
+const User = require('../models/User'); 
 
-// --- Lógica del Carrito (integrada con el usuario) ---
-
+// 
 // @desc    Obtener el carrito del usuario logueado
 // @route   GET /api/users/cart
 // @access  Private
@@ -145,7 +144,7 @@ const addOrderItems = asyncHandler(async (req, res) => {
         return {
           name: product.name,
           quantity: item.quantity,
-          image: product.imageUrl, // Asegúrate de que tu modelo de producto use 'imageUrl'
+          imageUrl: product.imageUrl, // Asegúrate de que tu modelo de producto use 'imageUrl'
           price: product.price,
           product: product._id, // Mantener la referencia al ObjectId del producto
         };
@@ -177,9 +176,9 @@ const addOrderItems = asyncHandler(async (req, res) => {
     const createdOrder = await order.save();
 
     // 4. Reducir el stock de los productos y vaciar el carrito
-    for (const item of itemsFromDB) { // Iterar sobre los items ya validados y con stock verificado
+    for (const item of itemsFromDB) { 
       const product = await Product.findById(item.product);
-      if (product) { // Doble chequeo, aunque ya se hizo arriba
+      if (product) { 
         product.countInStock -= item.quantity;
         await product.save();
       }
@@ -203,7 +202,8 @@ const getOrderById = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id).populate(
     'user',
     'username email'
-  ); // Popula el campo 'user' con username y email
+  )
+  .populate('orderItems.product', 'name imageUrl');
 
   if (order) {
     // Asegurarse de que solo el dueño del pedido o un admin pueda verlo
@@ -265,7 +265,7 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
 // @access  Private
 const getMyOrders = asyncHandler(async (req, res) => {
   const orders = await Order.find({ user: req.user._id }).populate(
-    'orderItems.product', // Popula los detalles del producto dentro de orderItems
+    'orderItems.product', 
     'name imageUrl price'
   );
   res.json(orders);
