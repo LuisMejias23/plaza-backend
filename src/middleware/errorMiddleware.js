@@ -1,10 +1,10 @@
-const notFound = (req, res, next) => {
+export const notFound = (req, res, next) => {
   const error = new Error(`No encontrado - ${req.originalUrl}`);
   res.status(404);
   next(error);
 };
 
-const errorHandler = (err, req, res, next) => {
+export const errorHandler = (err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode; // Si el status es 200, pero hubo un error, lo cambiamos a 500
   res.status(statusCode);
   res.json({
@@ -13,4 +13,4 @@ const errorHandler = (err, req, res, next) => {
   });
 };
 
-module.exports = { notFound, errorHandler };
+export default { notFound, errorHandler };

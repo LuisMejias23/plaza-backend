@@ -4,13 +4,15 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --env-file=.env src/server.js"
-  },
+  "start": "node src/server.js",
+  "dev": "node --env-file=.env src/server.js",
+  "seed": "node --env-file=.env src/utils/seed.js"
+}
+,
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",

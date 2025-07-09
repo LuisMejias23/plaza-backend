@@ -1,5 +1,5 @@
-const asyncHandler = require('express-async-handler');
-const User = require('../models/User'); // Asegúrate de que el path a tu modelo User sea correcto
+import asyncHandler from 'express-async-handler';
+import User from '../models/User.js'; // Importa el modelo completo
 
 // @desc    Get all users
 // @route   GET /api/users
@@ -16,10 +16,10 @@ const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
   if (user) {
-    // No permitir que un admin se elimine a sí mismo si es el admin logueado
+    // Evitar que un admin se elimine a sí mismo si es el admin actual
     if (user.role === 'admin' && user._id.toString() === req.user._id.toString()) {
-        res.status(400);
-        throw new Error('No puedes eliminar tu propia cuenta de administrador.');
+      res.status(400);
+      throw new Error('No puedes eliminar tu propia cuenta de administrador.');
     }
 
     await user.deleteOne();
@@ -49,40 +49,40 @@ const getUserById = asyncHandler(async (req, res) => {
 const updateUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
 
- if (user) {
-   
-  user.username = req.body.username ?? user.username;
-  user.email = req.body.email ?? user.email;
+  if (user) {
+    user.username = req.body.username ?? user.username;
+    user.email = req.body.email ?? user.email;
 
-  // Solo permitir cambiar el rol si el usuario logueado es admin
-  if (req.user.role === 'admin') {
-    if (user._id.toString() === req.user._id.toString()) {
-      if (req.body.role === 'user') {
-        const adminCount = await User.countDocuments({ role: 'admin' });
-        if (adminCount <= 1) {
-          res.status(400);
-          throw new Error('No puedes quitarte el rol de administrador si eres el único administrador.');
+    // Solo un admin puede cambiar roles
+    if (req.user.role === 'admin') {
+      if (user._id.toString() === req.user._id.toString()) {
+        // Si el admin actual intenta quitarse el rol admin y es el único admin, evita el cambio
+        if (req.body.role === 'user') {
+          const adminCount = await User.countDocuments({ role: 'admin' });
+          if (adminCount <= 1) {
+            res.status(400);
+            throw new Error('No puedes quitarte el rol de administrador si eres el único administrador.');
+          }
         }
       }
+      user.role = req.body.role ?? user.role;
     }
-    user.role = req.body.role ?? user.role;
-  }
 
-  const updatedUser = await user.save();
+    const updatedUser = await user.save();
 
-  res.json({
-    _id: updatedUser._id,
-    username: updatedUser.username,
-    email: updatedUser.email,
-    role: updatedUser.role,
-  });
+    res.json({
+      _id: updatedUser._id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      role: updatedUser.role,
+    });
   } else {
     res.status(404);
     throw new Error('Usuario no encontrado');
   }
 });
 
-module.exports = {
+export default {
   getUsers,
   deleteUser,
   getUserById,

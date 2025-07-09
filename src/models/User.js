@@ -1,7 +1,7 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+import { Schema, model } from "mongoose";
+import { genSalt, hash, compare } from "bcryptjs";
 
-const addressSchema = mongoose.Schema({
+const addressSchema = Schema({
   address: { type: String, required: true },
   city: { type: String, required: true },
   state: { type: String, required: true },
@@ -11,7 +11,7 @@ const addressSchema = mongoose.Schema({
   timestamps: true // Para tener createdAt y updatedAt en cada dirección
 });
 
-const userSchema = mongoose.Schema(
+const userSchema = Schema(
   {
     username: {
       type: String,
@@ -37,7 +37,7 @@ const userSchema = mongoose.Schema(
     },
     addresses: [
       {
-        addresse: { type: String, required: true },
+        address: { type: String, required: true },
         city: { type: String, required: true },
         state: { type: String, required: true },
         postalCode: { type: String, required: true },
@@ -50,7 +50,7 @@ const userSchema = mongoose.Schema(
     cart: [
       {
         product: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: Schema.Types.ObjectId,
           ref: "Product",
           required: true,
         },
@@ -73,14 +73,14 @@ userSchema.pre("save", async function (next) {
     next();
   }
 
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  const salt = await genSalt(10);
+  this.password = await hash(this.password, salt);
 });
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return await compare(enteredPassword, this.password);
 };
 
-const User = mongoose.model("User", userSchema);
+const User = model("User", userSchema);
 
-module.exports = User;
+export default User;

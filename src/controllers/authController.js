@@ -1,6 +1,6 @@
-const asyncHandler = require('express-async-handler');
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
+import asyncHandler from 'express-async-handler';
+import User from '../models/User.js';
+import generateToken from '../utils/generateToken.js';
 
 // @desc    Registrar un nuevo usuario
 // @route   POST /api/auth/register
@@ -18,7 +18,7 @@ const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     username,
     email,
-    password, 
+    password,
   });
 
   if (user) {
@@ -68,12 +68,10 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: 'Sesión cerrada exitosamente' });
 });
 
-
 // @desc    Obtener perfil de usuario
 // @route   GET /api/auth/profile
 // @access  Private
 const getUserProfile = asyncHandler(async (req, res) => {
-  // req.user ya está disponible gracias al middleware 'protect'
   const user = await User.findById(req.user._id).select('-password'); // Excluir la contraseña
 
   if (user) {
@@ -82,11 +80,11 @@ const getUserProfile = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
-      addresses: user.addresses || [], // Asegúrate de enviar las direcciones
+      addresses: user.addresses || [],
       cart: user.cart || [],
     });
   } else {
-    res.status(404); // Not Found
+    res.status(404);
     throw new Error('Usuario no encontrado');
   }
 });
@@ -102,7 +100,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
 
     if (req.body.password) {
-      user.password = req.body.password; // El modelo User se encargará de hashear esto
+      user.password = req.body.password;
     }
 
     const updatedUser = await user.save();
@@ -112,8 +110,8 @@ const updateUserProfile = asyncHandler(async (req, res) => {
       username: updatedUser.username,
       email: updatedUser.email,
       role: updatedUser.role,
-      token: generateToken(updatedUser._id), // Opcional: generar nuevo token si cambian credenciales clave
-      addresses: updatedUser.addresses || [], // Asegúrate de enviar las direcciones actualizadas
+      token: generateToken(updatedUser._id),
+      addresses: updatedUser.addresses || [],
     });
   } else {
     res.status(404);
@@ -121,7 +119,7 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Add a new address to user profile
+// @desc    Añadir una nueva dirección al perfil
 // @route   POST /api/auth/profile/address
 // @access  Private
 const addAddressToProfile = asyncHandler(async (req, res) => {
@@ -134,7 +132,6 @@ const addAddressToProfile = asyncHandler(async (req, res) => {
       throw new Error('Faltan campos requeridos para la dirección.');
     }
 
-    // Asegúrate de que el array de direcciones exista antes de hacer push
     if (!user.addresses) {
       user.addresses = [];
     }
@@ -154,7 +151,7 @@ const addAddressToProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Update an existing address in user profile
+// @desc    Actualizar una dirección existente
 // @route   PUT /api/auth/profile/address/:id
 // @access  Private
 const updateAddressInProfile = asyncHandler(async (req, res) => {
@@ -164,7 +161,6 @@ const updateAddressInProfile = asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { address, city, state, postalCode, country } = req.body;
 
-    // Asegúrate de que addresses es un array antes de usar .id()
     const existingAddress = user.addresses ? user.addresses.id(id) : null;
 
     if (!existingAddress) {
@@ -172,7 +168,6 @@ const updateAddressInProfile = asyncHandler(async (req, res) => {
       throw new Error('Dirección no encontrada');
     }
 
-    // Actualizar los campos de la dirección
     existingAddress.address = address || existingAddress.address;
     existingAddress.city = city || existingAddress.city;
     existingAddress.state = state || existingAddress.state;
@@ -194,7 +189,7 @@ const updateAddressInProfile = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete an address from user profile
+// @desc    Eliminar una dirección del perfil
 // @route   DELETE /api/auth/profile/address/:id
 // @access  Private
 const deleteAddressFromProfile = asyncHandler(async (req, res) => {
@@ -203,11 +198,9 @@ const deleteAddressFromProfile = asyncHandler(async (req, res) => {
   if (user) {
     const { id } = req.params;
 
-    // Asegúrate de que addresses es un array antes de usar filter
-    user.addresses = user.addresses ? user.addresses.filter(
-      (addr) => addr._id && addr._id.toString() !== id // Añadido check para addr._id
-    ) : [];
-
+    user.addresses = user.addresses
+      ? user.addresses.filter(addr => addr._id && addr._id.toString() !== id)
+      : [];
 
     const updatedUser = await user.save();
 
@@ -224,10 +217,7 @@ const deleteAddressFromProfile = asyncHandler(async (req, res) => {
   }
 });
 
-
-
-
-module.exports = {
+export {
   registerUser,
   authUser,
   logoutUser,

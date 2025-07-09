@@ -1,24 +1,25 @@
-const express = require("express");
-const router = express.Router();
-const {
+import { Router } from "express";
+import { check } from "express-validator";
+import {
   registerUser,
   authUser,
   logoutUser,
   getUserProfile,
   updateUserProfile,
-  addAddressToProfile, 
+  addAddressToProfile,
   updateAddressInProfile,
   deleteAddressFromProfile,
-} = require("../controllers/authController");
+} from "../controllers/authController.js";
 
-const {
+import {
   getUserCart,
   addOrUpdateCartItem,
   removeCartItem,
-} = require("../controllers/orderController");
+} from "../controllers/orderController.js";
 
-const { protect, admin } = require("../middleware/authMiddleware");
-const { check } = require("express-validator"); // Para validación de datos
+import { protect, admin } from "../middleware/authMiddleware.js";
+
+const router = Router();
 
 // Rutas públicas
 router.post(
@@ -26,13 +27,11 @@ router.post(
   [
     check("username", "El nombre de usuario es requerido").not().isEmpty(),
     check("email", "Por favor, incluye un email válido").isEmail(),
-    check(
-      "password",
-      "La contraseña debe tener al menos 6 caracteres"
-    ).isLength({ min: 6 }),
+    check("password", "La contraseña debe tener al menos 6 caracteres").isLength({ min: 6 }),
   ],
   registerUser
 );
+
 router.post(
   "/login",
   [
@@ -41,37 +40,36 @@ router.post(
   ],
   authUser
 );
-router.post("/logout", logoutUser); // <-- ¡Nueva ruta para logout!
 
-// Rutas privadas (requieren autenticación)
-router.route('/').post(registerUser).get(protect, admin); // GET /api/users (solo admin)
-router.post('/login', authUser);
+router.post("/logout", logoutUser);
 
-router
-  .route("/profile")
+// Rutas privadas
+router.route("/profile")
   .get(protect, getUserProfile)
   .put(protect, updateUserProfile);
 
-// <-- ¡Nuevas rutas para la gestión de direcciones! -->
-router.route("/profile/address")
-  .post(protect, addAddressToProfile); // Añadir nueva dirección
+// Gestión de direcciones
+router.route("/profile/address").post(protect, addAddressToProfile);
 
 router.route("/profile/address/:id")
-  .put(protect, updateAddressInProfile) // Actualizar dirección existente
-  .delete(protect, deleteAddressFromProfile); // Eliminar dirección
+  .put(protect, updateAddressInProfile)
+  .delete(protect, deleteAddressFromProfile);
 
-// Rutas del carrito (asociadas al usuario)
-router
-  .route("/cart")
-  .get(protect, getUserCart) // Obtener el carrito del usuario
-  .post(protect, addOrUpdateCartItem); // Añadir/actualizar item en el carrito
+// Carrito del usuario
+router.route("/cart")
+  .get(protect, getUserCart)
+  .post(protect, addOrUpdateCartItem);
 
-router.route("/cart/:productId").delete(protect, removeCartItem); // Eliminar item del carrito
+router.route("/cart/:productId").delete(protect, removeCartItem);
 
-router
-  .route('/:id')
-  .delete(protect, admin) // DELETE /api/users/:id (solo admin)
-  .get(protect, admin) // GET /api/users/:id (solo admin)
+// Admin: CRUD de usuarios por ID
+router.route("/:id")
+  .delete(protect, admin)
+  .get(protect, admin)
   .put(protect, admin);
 
-module.exports = router;
+// Opcional: solo si quieres tener también el registro acá con GET protegido
+// Si no lo necesitas, elimina esta línea
+// router.route("/").post(registerUser).get(protect, admin);
+
+export default router;

@@ -1,11 +1,11 @@
-const express = require("express");
-const connectDB = require("../config/db");
-const cors = require("cors");
-const { notFound, errorHandler } = require('./middleware/errorMiddleware');
-const authRoutes = require('./routes/authRoutes');
-const userRoutes = require('./routes/userRoutes');
-const productRoutes = require('./routes/productRoutes');
-const orderRoutes = require('./routes/orderRoutes');
+import express from 'express';
+import connectDB from './config/db.js';
+import cors from 'cors';
+import { notFound, errorHandler } from './middleware/errorMiddleware.js';
+import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 

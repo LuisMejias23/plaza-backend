@@ -1,14 +1,7 @@
-const express = require('express');
-const router = express.Router();
-const {
-  addOrderItems,
-  getOrderById,
-  updateOrderToPaid,
-  updateOrderToDelivered,
-  getMyOrders,
-  getOrders,
-} = require('../controllers/orderController');
-const { protect, admin } = require('../middleware/authMiddleware');
+import { Router } from 'express';
+const router = Router();
+import { addOrderItems, getOrderById, updateOrderToPaid, updateOrderToDelivered, getMyOrders, getOrders } from '../controllers/orderController.js';
+import { protect, admin } from '../middleware/authMiddleware.js';
 
 // Rutas para crear y obtener pedidos del usuario logueado
 router.route('/')
@@ -26,4 +19,4 @@ router.route('/:id/pay')
 router.route('/:id/deliver')
   .put(protect, admin, updateOrderToDelivered); // Marcar pedido como entregado (solo admin)
 
-module.exports = router;
+export default router;
